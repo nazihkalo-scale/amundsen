@@ -62,10 +62,10 @@ neo4j_user = 'neo4j'
 neo4j_password = 'test'
 
 ### REDASH CONFIG [TODO: Move to env]
-redash_base_url = "https://redash.scale.com"
-api_base_url = "https://redash.scale.com/api"
-api_key = "p4kbYd0zQgetoI4ScyBkULVq4t7RTsZz7cekm6xR"
-redash_version = 11
+redash_base_url =  os.getenv('REDASH_BASE_URL', '')
+api_base_url = os.getenv('API_BASE_URL', '')
+api_key =  os.getenv('API_KEY', '')
+redash_version = os.getenv('REDASH_VERSION', 11)
 
 
 LOGGER = logging.getLogger(__name__)

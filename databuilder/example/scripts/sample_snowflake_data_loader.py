@@ -59,16 +59,18 @@ es = Elasticsearch([
     {'host': es_host if es_host else 'localhost', 'port': es_port},
 ])
 
-SNOWFLAKE_DATABASE_KEY = 'scale_prod'
+
+SNOWFLAKE_DATABASE_KEY = os.getenv('SNOWFLAKE_DATABASE_KEY', 'prod')
 # todo: connection string needs to change
 def connection_string():
     # Refer this doc: https://docs.snowflake.com/en/user-guide/sqlalchemy.html#connection-parameters
     # for supported connection parameters and configurations
-    user = 'analytics_user'
-    password = 'YtRp3QRQ8RME'
-    account = 'pxa65918'
+    user = os.getenv('SNOWFLAKE_USER', '')
+    password = os.getenv('SNOWFLAKE_PASSWORD', '')
+    account = os.getenv('SNOWFLAKE_ACCOUNT', '')
     # specify a warehouse to connect to.
-    warehouse = 'ANALYTICS_WH'
+    warehouse = os.getenv('SNOWFLAKE_WAREHOUSE', '')
+    
     return f'snowflake://{user}:{password}@{account}/{SNOWFLAKE_DATABASE_KEY}?warehouse={warehouse}'
 
 

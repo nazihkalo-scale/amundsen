@@ -68,19 +68,19 @@ neo4j_password = 'test'
 
 LOGGER = logging.getLogger(__name__)
 
-tableau_base_url = "https://10ay.online.tableau.com"
-tableau_api_base_url = "https://10ay.online.tableau.com"
-tableau_api_version = 3.15
-tableau_site_name = "scale"
-tableau_personal_access_token_name = "amundsen"
-tableau_personal_access_token_secret = "hF6cFG8mTEmd3ZIr6ofWvA==:FcJ1xxXBhRDgW2o91x3gBkBCNp0Bl2OW"
-tableau_excluded_projects = []
-tableau_dashboard_cluster = ""
-tableau_dashboard_database = ""
-tableau_external_table_cluster = ""
-tableau_external_table_schema = ""
-tableau_external_table_types = []
-tableau_verify_request = False
+tableau_base_url = os.getenv('TABLEAU_BASE_URL', "") 
+tableau_api_base_url = os.getenv('TABLEAU_API_BASE_URL', "") 
+tableau_api_version = os.getenv('TABLEAU_API_VERSION', 3.15) 
+tableau_site_name = os.getenv('TABLEAU_SITE_NAME', "") 
+tableau_personal_access_token_name = os.getenv('TABLEAU_PERSONAL_ACCESS_TOKEN_NAME', "") 
+tableau_personal_access_token_secret = os.getenv('TABLEAU_PERSONAL_ACCESS_TOKEN_SECRET', "") 
+tableau_excluded_projects = os.getenv('TABLEAU_EXCLUDED_PROJECTS', []) 
+tableau_dashboard_cluster = os.getenv('TABLEAU_DASHBOARD_CLUSTER', "") 
+tableau_dashboard_database = os.getenv('TABLEAU_DASHBOARD_DATABASE', "") 
+tableau_external_table_cluster = os.getenv('TABLEAU_EXTERNAL_TABLE_CLUSTER', "") 
+tableau_external_table_schema = os.getenv('TABLEAU_EXTERNAL_TABLE_SCHEMA', "") 
+tableau_external_table_types = os.getenv('TABLEAU_EXTERNAL_TABLE_TYPES', []) 
+tableau_verify_request = os.getenv('TABLEAU_VERIFY_REQUEST', None) 
 
 common_tableau_config = {
     'publisher.neo4j.neo4j_endpoint': neo4j_endpoint,
