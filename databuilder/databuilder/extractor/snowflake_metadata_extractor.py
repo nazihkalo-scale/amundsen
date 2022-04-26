@@ -52,19 +52,21 @@ class SnowflakeMetadataExtractor(Extractor):
     {where_clause_suffix};
     """
 
+
     # CONFIG KEYS
-    WHERE_CLAUSE_SUFFIX_KEY = ' '
-    CLUSTER_KEY = 'SNOWFLAKE_SCALE_PROD'
-    USE_CATALOG_AS_CLUSTER_NAME = 'False'
+    WHERE_CLAUSE_SUFFIX_KEY = 'where_clause_suffix'
+    CLUSTER_KEY = 'cluster_key'
+    USE_CATALOG_AS_CLUSTER_NAME = 'use_catalog_as_cluster_name'
     # Database Key, used to identify the database type in the UI.
-    DATABASE_KEY = 'SNOWFLAKE_SCALE_PROD'
+    DATABASE_KEY = 'database_key'
     # Snowflake Database Key, used to determine which Snowflake database to connect to.
-    SNOWFLAKE_DATABASE_KEY = 'SCALE_PROD'
+    SNOWFLAKE_DATABASE_KEY = 'snowflake_database'
     # Snowflake Schema Key, used to determine which Snowflake schema to use.
-    SNOWFLAKE_SCHEMA_KEY = 'PUBLIC'
+    SNOWFLAKE_SCHEMA_KEY = 'snowflake_schema'
 
     # Default values
     DEFAULT_CLUSTER_NAME = 'master'
+   
 
     DEFAULT_CONFIG = ConfigFactory.from_dict(
         {WHERE_CLAUSE_SUFFIX_KEY: ' ',
