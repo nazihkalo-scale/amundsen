@@ -53,42 +53,52 @@ class TableauGraphQLDashboardTableExtractor(TableauGraphQLApiExtractor):
             }
 
             for table in workbook['upstreamTables']:
-                if table['name'] is None:
-                    LOGGER.warning(f'Ignoring a table in workbook (ID:{workbook["name"]}) ' +
-                                   f'in project (ID:{workbook["projectName"]}) because of a lack of permission')
-                    continue
-                # external tables have no schema, so they must be parsed differently
-                # see TableauExternalTableExtractor for more specifics
-                if table['schema'] != '':
-                    cluster = self._conf.get_string(TableauGraphQLDashboardTableExtractor.CLUSTER)
-                    database = self._conf.get_string(TableauGraphQLDashboardTableExtractor.DATABASE)
+                try:
+                    if table['name'] is None:
+                        LOGGER.warning(f'Ignoring a table in workbook (ID:{workbook["name"]}) ' +
+                                    f'in project (ID:{workbook["projectName"]}) because of a lack of permission')
+                        continue
+                    # external tables have no schema, so they must be parsed differently
+                    # see TableauExternalTableExtractor for more specifics
+                    if table['schema'] != '':
+                        cluster = self._conf.get_string(TableauGraphQLDashboardTableExtractor.CLUSTER)
+                        database = self._conf.get_string(TableauGraphQLDashboardTableExtractor.DATABASE)
 
-                    # Tableau sometimes incorrectly assigns the "schema" value
-                    # based on how the datasource connection is used in a workbook.
-                    # It will hide the real schema inside the table name, like "real_schema.real_table",
-                    # and set the "schema" value to "wrong_schema". In every case discovered so far, the schema
-                    # key is incorrect, so the "inner" schema from the table name is used instead.
-                    if '.' in table['name']:
-                        schema, name = table['name'].split('.')
+                        # Tableau sometimes incorrectly assigns the "schema" value
+                        # based on how the datasource connection is used in a workbook.
+                        # It will hide the real schema inside the table name, like "real_schema.real_table",
+                        # and set the "schema" value to "wrong_schema". In every case discovered so far, the schema
+                        # key is incorrect, so the "inner" schema from the table name is used instead.
+                        print(table['name'])
+                        if '.' in table['name']:
+                            # schema, name = table['name'].split('.')
+                            
+                            fully_qualified_name = ['table', 'schema', 'database']
+                            fully_qualified_name_dict = {fully_qualified_name[i]: j for i, j in enumerate(table['name'].split('.')[::-1])}
+                            schema = fully_qualified_name_dict['schema']
+                            name = fully_qualified_name_dict['table']
+                            
+                        else:
+                            schema, name = table['schema'], table['name']
+                        schema = TableauDashboardUtils.sanitize_schema_name(schema)
+                        name = TableauDashboardUtils.sanitize_table_name(name)
                     else:
-                        schema, name = table['schema'], table['name']
-                    schema = TableauDashboardUtils.sanitize_schema_name(schema)
-                    name = TableauDashboardUtils.sanitize_table_name(name)
-                else:
-                    cluster = self._conf.get_string(TableauGraphQLDashboardTableExtractor.EXTERNAL_CLUSTER_NAME)
-                    database = TableauDashboardUtils.sanitize_database_name(
-                        table['database']['connectionType']
-                    )
-                    schema = TableauDashboardUtils.sanitize_schema_name(table['database']['name'])
-                    name = TableauDashboardUtils.sanitize_table_name(table['name'])
+                        cluster = self._conf.get_string(TableauGraphQLDashboardTableExtractor.EXTERNAL_CLUSTER_NAME)
+                        database = TableauDashboardUtils.sanitize_database_name(
+                            table['database']['connectionType']
+                        )
+                        schema = TableauDashboardUtils.sanitize_schema_name(table['database']['name'])
+                        name = TableauDashboardUtils.sanitize_table_name(table['name'])
 
-                table_id = TableMetadata.TABLE_KEY_FORMAT.format(
-                    db=database,
-                    cluster=cluster,
-                    schema=schema,
-                    tbl=name,
-                )
-                data['table_ids'].append(table_id)
+                    table_id = TableMetadata.TABLE_KEY_FORMAT.format(
+                        db=database,
+                        cluster=cluster,
+                        schema=schema,
+                        tbl=name,
+                    )
+                    data['table_ids'].append(table_id)
+                except:
+                    print(f"Error with {table['name']}")
 
             yield data
 

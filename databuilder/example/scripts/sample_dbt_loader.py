@@ -76,7 +76,7 @@ def run_dbt_job(database_name, catalog_file_loc, manifest_file_loc, source_url=N
                        loader=csv_loader,
                        transformer=NoopTransformer())
 
-    # Catalop and manifest files can be passed in as file locations or a valid python
+    # Catalog and manifest files can be passed in as file locations or a valid python
     # dict, allowing you to retrieve the files from S3 or another source and pass it in
     with open(manifest_file_loc, 'rb') as f:
         manifest_data = json.load(f)
@@ -98,9 +98,10 @@ def run_dbt_job(database_name, catalog_file_loc, manifest_file_loc, source_url=N
         'publisher.neo4j.job_publish_tag': 'unique_tag',  # should use unique tag here like {ds}
     })
 
-    DefaultJob(conf=job_config,
+    job = DefaultJob(conf=job_config,
                task=task,
-               publisher=Neo4jCsvPublisher()).launch()
+               publisher=Neo4jCsvPublisher())
+    return job
 
 
 def create_es_publisher_sample_job(elasticsearch_index_alias='table_search_index',
@@ -163,12 +164,13 @@ if __name__ == "__main__":
     # Uncomment next line to get INFO level logging
     # logging.basicConfig(level=logging.INFO)
 
-    run_dbt_job(
+    dbt_job = run_dbt_job(
         database_name='snowflake',
         catalog_file_loc='example/sample_data/dbt/catalog.json',
         manifest_file_loc='example/sample_data/dbt/manifest.json',
-        source_url='https://github.com/your-company/your-repo/tree/main'
+        source_url='https://github.com/scaleapi/dbt/tree/master'
     )
+    dbt_job.launch()
 
     job_es_table = create_es_publisher_sample_job(
         elasticsearch_index_alias='table_search_index',

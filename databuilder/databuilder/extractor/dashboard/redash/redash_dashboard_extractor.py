@@ -63,11 +63,11 @@ class RedashDashboardExtractor(Extractor):
     Any table that does not exist will be ignored.
     """
 
-    REDASH_BASE_URL_KEY = 'redash_base_url'
-    API_BASE_URL_KEY = 'api_base_url'
-    API_KEY_KEY = 'api_key'
+    REDASH_BASE_URL_KEY = 'https://redash.scale.com'
+    API_BASE_URL_KEY = 'https://redash.scale.com/api'
+    API_KEY_KEY = 'p4kbYd0zQgetoI4ScyBkULVq4t7RTsZz7cekm6xR'
     CLUSTER_KEY = 'cluster'  # optional config
-    TABLE_PARSER_KEY = 'table_parser'  # optional config
+    # TABLE_PARSER_KEY = 'table_parser'  # optional config
     REDASH_VERSION = 'redash_version'  # optional config
 
     DEFAULT_CLUSTER = 'prod'

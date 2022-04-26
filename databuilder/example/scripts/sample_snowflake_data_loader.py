@@ -31,7 +31,7 @@ LOGGER.setLevel(logging.INFO)
 # Disable snowflake logging
 logging.getLogger("snowflake.connector.network").disabled = True
 
-SNOWFLAKE_DATABASE_KEY = 'YourSnowflakeDbName'
+
 
 # set env NEO4J_HOST to override localhost
 NEO4J_ENDPOINT = f'bolt://{os.getenv("NEO4J_HOST", "localhost")}:7687'
@@ -42,36 +42,42 @@ neo4j_password = 'test'
 
 IGNORED_SCHEMAS = ['\'DVCORE\'', '\'INFORMATION_SCHEMA\'', '\'STAGE_ORACLE\'']
 
-es_host = None
-neo_host = None
+es_host = os.getenv('CREDENTIALS_ELASTICSEARCH_PROXY_HOST', 'localhost')
+neo_host = os.getenv('CREDENTIALS_NEO4J_PROXY_HOST', 'localhost')
+
+es_port = os.getenv('CREDENTIALS_ELASTICSEARCH_PROXY_PORT', 9200)
+neo_port = os.getenv('CREDENTIALS_NEO4J_PROXY_PORT', 7687)
+
+# es_host = None
+# neo_host = None
 if len(sys.argv) > 1:
     es_host = sys.argv[1]
 if len(sys.argv) > 2:
     neo_host = sys.argv[2]
 
 es = Elasticsearch([
-    {'host': es_host if es_host else 'localhost'},
+    {'host': es_host if es_host else 'localhost', 'port': es_port},
 ])
 
-
+SNOWFLAKE_DATABASE_KEY = 'scale_prod'
 # todo: connection string needs to change
 def connection_string():
     # Refer this doc: https://docs.snowflake.com/en/user-guide/sqlalchemy.html#connection-parameters
     # for supported connection parameters and configurations
-    user = 'username'
-    password = 'password'
-    account = 'YourSnowflakeAccountHere'
+    user = 'analytics_user'
+    password = 'YtRp3QRQ8RME'
+    account = 'pxa65918'
     # specify a warehouse to connect to.
-    warehouse = 'yourwarehouse'
+    warehouse = 'ANALYTICS_WH'
     return f'snowflake://{user}:{password}@{account}/{SNOWFLAKE_DATABASE_KEY}?warehouse={warehouse}'
 
 
 def create_sample_snowflake_job():
     where_clause = f"WHERE c.TABLE_SCHEMA not in ({','.join(IGNORED_SCHEMAS)}) \
-            AND c.TABLE_SCHEMA not like 'STAGE_%' \
-            AND c.TABLE_SCHEMA not like 'HIST_%' \
-            AND c.TABLE_SCHEMA not like 'SNAP_%' \
             AND lower(c.COLUMN_NAME) not like 'dw_%';"
+            # AND c.TABLE_SCHEMA not like 'STAGE_%' \
+            # AND c.TABLE_SCHEMA not like 'HIST_%' \
+            # AND c.TABLE_SCHEMA not like 'SNAP_%' \
 
     tmp_folder = '/var/tmp/amundsen/tables'
     node_files_folder = f'{tmp_folder}/nodes'
@@ -83,10 +89,17 @@ def create_sample_snowflake_job():
     task = DefaultTask(extractor=sql_extractor,
                        loader=csv_loader)
 
+    
+    
+    # SNOWFLAKE_SCHEMA_KEY = 'PUBLIC'
+    # USE_CATALOG_AS_CLUSTER_NAME = False
+
     job_config = ConfigFactory.from_dict({
         f'extractor.snowflake.extractor.sqlalchemy.{SQLAlchemyExtractor.CONN_STRING}': connection_string(),
         f'extractor.snowflake.{SnowflakeMetadataExtractor.SNOWFLAKE_DATABASE_KEY}': SNOWFLAKE_DATABASE_KEY,
         f'extractor.snowflake.{SnowflakeMetadataExtractor.WHERE_CLAUSE_SUFFIX_KEY}': where_clause,
+        # f'extractor.snowflake.{SnowflakeMetadataExtractor.SNOWFLAKE_SCHEMA_KEY}': SNOWFLAKE_SCHEMA_KEY,
+        # f'extractor.snowflake.{SnowflakeMetadataExtractor.USE_CATALOG_AS_CLUSTER_NAME}': USE_CATALOG_AS_CLUSTER_NAME,
         f'loader.filesystem_csv_neo4j.{FsNeo4jCSVLoader.NODE_DIR_PATH}': node_files_folder,
         f'loader.filesystem_csv_neo4j.{FsNeo4jCSVLoader.RELATION_DIR_PATH}': relationship_files_folder,
         f'loader.filesystem_csv_neo4j.{FsNeo4jCSVLoader.SHOULD_DELETE_CREATED_DIR}': True,
@@ -98,6 +111,7 @@ def create_sample_snowflake_job():
         f'publisher.neo4j.{neo4j_csv_publisher.NEO4J_PASSWORD}': neo4j_password,
         f'publisher.neo4j.{neo4j_csv_publisher.JOB_PUBLISH_TAG}': 'unique_tag'
     })
+
     job = DefaultJob(conf=job_config,
                      task=task,
                      publisher=Neo4jCsvPublisher())

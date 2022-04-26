@@ -35,6 +35,7 @@ frontend/amundsen_application/.*/
 frontend/amundsen_application/static/dist/
 npm-debug.log
 frontend/**/env
+frontend/.eggs/**
 node_modules/
 jest
 .coverage

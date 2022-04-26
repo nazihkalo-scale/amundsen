@@ -6,6 +6,7 @@ from typing import Any
 
 from pyhocon import ConfigFactory, ConfigTree
 from sqlalchemy import create_engine
+from sqlalchemy.dialects import registry
 
 from databuilder import Scoped
 from databuilder.extractor.base_extractor import Extractor
@@ -25,6 +26,8 @@ class SQLAlchemyExtractor(Extractor):
         Establish connections and import data model class if provided
         :param conf:
         """
+        from sqlalchemy.dialects import registry
+        # registry.register('snowflake', 'snowflake.sqlalchemy', 'dialect')
         self.conf = conf
         self.conn_string = conf.get_string(SQLAlchemyExtractor.CONN_STRING)
 
@@ -53,6 +56,8 @@ class SQLAlchemyExtractor(Extractor):
                 self.CONNECT_ARGS, default=ConfigTree()
             ).items()
         }
+        from sqlalchemy.dialects import registry
+        # registry.register('snowflake', 'snowflake.sqlalchemy', 'dialect')
         engine = create_engine(self.conn_string, connect_args=connect_args)
         conn = engine.connect()
         return conn
@@ -97,6 +102,8 @@ def from_surrounding_config(conf: ConfigTree, sql_stmt: str) -> SQLAlchemyExtrac
         wrapping extractor implementation, and not by the config.
     """
     ae = SQLAlchemyExtractor()
+    from sqlalchemy.dialects import registry
+    # registry.register('snowflake', 'snowflake.sqlalchemy', 'dialect')
     c = Scoped.get_scoped_conf(conf, ae.get_scope()) \
         .with_fallback(ConfigFactory.from_dict({SQLAlchemyExtractor.EXTRACT_SQL: sql_stmt}))
     ae.init(c)

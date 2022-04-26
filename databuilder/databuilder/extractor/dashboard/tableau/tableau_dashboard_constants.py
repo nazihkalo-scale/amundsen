@@ -14,3 +14,4 @@ EXTERNAL_TABLE_TYPES = 'external_table_types'
 CLUSTER = 'cluster'
 DATABASE = 'database'
 VERIFY_REQUEST = 'verify_request'
+

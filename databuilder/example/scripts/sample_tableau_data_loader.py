@@ -68,19 +68,19 @@ neo4j_password = 'test'
 
 LOGGER = logging.getLogger(__name__)
 
-tableau_base_url = ""
-tableau_api_base_url = ""
-tableau_api_version = 0
-tableau_site_name = ""
-tableau_personal_access_token_name = ""
-tableau_personal_access_token_secret = ""
+tableau_base_url = "https://10ay.online.tableau.com"
+tableau_api_base_url = "https://10ay.online.tableau.com"
+tableau_api_version = 3.15
+tableau_site_name = "scale"
+tableau_personal_access_token_name = "amundsen"
+tableau_personal_access_token_secret = "hF6cFG8mTEmd3ZIr6ofWvA==:FcJ1xxXBhRDgW2o91x3gBkBCNp0Bl2OW"
 tableau_excluded_projects = []
 tableau_dashboard_cluster = ""
 tableau_dashboard_database = ""
 tableau_external_table_cluster = ""
 tableau_external_table_schema = ""
 tableau_external_table_types = []
-tableau_verify_request = None
+tableau_verify_request = False
 
 common_tableau_config = {
     'publisher.neo4j.neo4j_endpoint': neo4j_endpoint,
